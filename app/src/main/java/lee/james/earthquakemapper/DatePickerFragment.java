@@ -26,8 +26,10 @@ public class DatePickerFragment extends DialogFragment implements DatePickerDial
 
         DatePickerDialog datePicker = new DatePickerDialog(getActivity(), this, year, month, day);
 
-        // datePicker.getDatePicker().setMinDate(); // TODO - Set the min date to the oldest date in the earthquake database
-        // datePicker.getDatePicker().setMaxDate(); // TODO - Set the max date to the latest date in the earthquake database
+        EarthquakeDatabaseHelper earthquakeDatabase = new EarthquakeDatabaseHelper(getActivity());
+
+        datePicker.getDatePicker().setMinDate(earthquakeDatabase.getOldest().getDate().getTime());
+        datePicker.getDatePicker().setMaxDate(earthquakeDatabase.getLatest().getDate().getTime());
 
         return datePicker;
     }
