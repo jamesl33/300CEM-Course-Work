@@ -13,7 +13,11 @@ import java.util.Calendar;
 
 public class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
+    public static final Integer PICK_START_DATE = 0;
+    public static final Integer PICk_END_DATE = 1;
+
     private static final String LOG_TAG = DatePickerFragment.class.getSimpleName();
+    private int flag = 0;
 
     @NonNull
     @Override
@@ -36,6 +40,14 @@ public class DatePickerFragment extends DialogFragment implements DatePickerDial
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int day) {
-        Log.d(LOG_TAG, String.format("%s %d/%d/%d", "The user selected the date", year, month, day));
+        if (this.flag == DatePickerFragment.PICK_START_DATE) {
+            Log.d(LOG_TAG, String.format("%s %d/%d/%d", "Start date: ", year, month, day));
+        } else {
+            Log.d(LOG_TAG, String.format("%s %d/%d/%d", "End date: ", year, month, day));
+        }
+    }
+
+    public void setFlag(Integer flag) {
+        this.flag = flag;
     }
 }

@@ -1,7 +1,6 @@
 package lee.james.earthquakemapper;
 
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -13,12 +12,16 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
+    private DatePickerFragment mDatePickerFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mDatePickerFragment = new DatePickerFragment();
     }
 
     @Override
@@ -43,8 +46,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showDatePickerDialog(View view) {
-        DialogFragment newFragment = new DatePickerFragment();
-        newFragment.show(getSupportFragmentManager(), getString(R.string.date_picker));
+        if (view.getId() == R.id.button_start_date) {
+            // The user is choosing the start date
+            mDatePickerFragment.setFlag(DatePickerFragment.PICK_START_DATE);
+        } else {
+            // The user is choosing the end date
+            mDatePickerFragment.setFlag(DatePickerFragment.PICk_END_DATE);
+        }
+
+        // Show the date picker dialog
+        mDatePickerFragment.show(getSupportFragmentManager(), getString(R.string.date_picker));
     }
 
     public void visualizeEarthquakes(View view) {
