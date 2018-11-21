@@ -8,7 +8,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.Date;
+
 public class MainActivity extends AppCompatActivity {
+
+    protected Date startDate;
+    protected Date endDate;
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
