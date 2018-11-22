@@ -15,13 +15,12 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-    protected Date startDate;
-    protected Date endDate;
-
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private DatePickerFragment mDatePickerFragment;
-    private Boolean generateHeatmap;
+
+    protected Date startDate;
+    protected Date endDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +33,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mDatePickerFragment = new DatePickerFragment();
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        this.generateHeatmap = sharedPref.getBoolean(SettingsActivity.KEY_PREF_HEATMAP_SWITCH, false);
     }
 
     @Override
@@ -77,7 +73,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void visualizeEarthquakes(View view) {
         // TODO - Launch a google maps activity where we will display the earthquake data
-        if (this.generateHeatmap) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (sharedPref.getBoolean(SettingsActivity.KEY_PREF_HEATMAP_SWITCH, false)) {
             Log.d(LOG_TAG, "launch google maps activity to visualize earthquake data using a heatmap");
         } else {
             Log.d(LOG_TAG, "launch google maps activity to visualize earthquake data");
