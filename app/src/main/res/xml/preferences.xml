@@ -17,13 +17,16 @@
         android:key="earthquakes_category"
         android:title="Earthquakes">
 
-        <EditTextPreference
-            android:defaultValue="10"
+        <ListPreference
+            android:defaultValue="60"
             android:key="earthquake_count"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
             android:summary="How many earthquakes to display"
+            android:entries="@array/earthquake_count_values"
+            android:entryValues="@array/earthquake_count_values"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
             android:title="Earthquake Count" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

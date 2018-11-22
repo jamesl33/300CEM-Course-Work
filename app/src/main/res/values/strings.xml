@@ -16,4 +16,10 @@
     <!-- Values to do with preferences -->
     <string name="heatmap_toggle_summary">Visualise earthquakes using a heatmap</string>
     <string name="heatmap_toggle">Heatmap</string>
+
+    <string-array name="earthquake_count_values">
+        <item>10</item>
+        <item>50</item>
+        <item>100</item>
+    </string-array>
 </resources>
