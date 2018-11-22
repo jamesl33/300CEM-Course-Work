@@ -10,6 +10,10 @@
     <!-- Values related to toolbar actions -->
     <string name="action_settings">Settings</string>
 
-    <!-- String to do with DatePickerFragment -->
+    <!-- Values to do with DatePickerFragment -->
     <string name="date_picker">datePicker</string>
+
+    <!-- Values to do with preferences -->
+    <string name="heatmap_toggle_summary">Visualise earthquakes using a heatmap</string>
+    <string name="heatmap_toggle">Heatmap</string>
 </resources>
