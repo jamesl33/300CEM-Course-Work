@@ -76,9 +76,9 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         if (sharedPref.getBoolean(SettingsActivity.KEY_PREF_HEATMAP_SWITCH, false)) {
-            Log.d(LOG_TAG, "launch google maps activity to visualize earthquake data using a heatmap");
+            Log.d(LOG_TAG, String.format("launch maps activity and visualize %s earthquakes", sharedPref.getString(SettingsActivity.KEY_PREF_EARTHQUAKE_COUNT, "10")));
         } else {
-            Log.d(LOG_TAG, "launch google maps activity to visualize earthquake data");
+            Log.d(LOG_TAG, String.format("launch maps activity and visualize %s earthquakes as a heatmap", sharedPref.getString(SettingsActivity.KEY_PREF_EARTHQUAKE_COUNT, "10")));
         }
     }
 }
