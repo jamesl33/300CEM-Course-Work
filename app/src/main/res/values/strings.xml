@@ -1,4 +1,5 @@
 <resources>
+
     <!-- Values related to main app -->
     <string name="app_name">Earthquake Mapper</string>
 
@@ -21,5 +22,8 @@
         <item>10</item>
         <item>50</item>
         <item>100</item>
+        <item>All</item>
     </string-array>
+    <string name="title_activity_earthquake_map">Map</string>
+
 </resources>

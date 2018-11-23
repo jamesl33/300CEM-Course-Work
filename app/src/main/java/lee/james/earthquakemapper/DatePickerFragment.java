@@ -14,7 +14,7 @@ import java.util.Date;
 public class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
     public static final Integer PICK_START_DATE = 0;
-    public static final Integer PICk_END_DATE = 1;
+    public static final Integer PICK_END_DATE = 1;
 
     private static final String LOG_TAG = DatePickerFragment.class.getSimpleName();
     private int flag = 0;
@@ -24,7 +24,16 @@ public class DatePickerFragment extends DialogFragment implements DatePickerDial
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         MainActivity activity = (MainActivity) getActivity();
 
-        final Calendar cal = Calendar.getInstance();
+        // Use the current date as the default date for the date picker
+        Calendar cal = Calendar.getInstance();
+
+        if ((activity.startDate != null) && (this.flag == DatePickerFragment.PICK_START_DATE)) {
+            // If the user has already picked a start date use that as the current date
+            cal.setTime(activity.startDate);
+        } else if ((activity.endDate != null) && this.flag == DatePickerFragment.PICK_END_DATE) {
+            // If the user has already picked an end date use that as the current date
+            cal.setTime(activity.endDate);
+        }
 
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH);
@@ -40,11 +49,7 @@ public class DatePickerFragment extends DialogFragment implements DatePickerDial
             datePicker.getDatePicker().setMinDate(activity.startDate.getTime());
         }
 
-        if (activity.endDate == null) {
-            datePicker.getDatePicker().setMaxDate(earthquakeDatabase.getLatest().getDate().getTime());
-        } else {
-            datePicker.getDatePicker().setMaxDate(activity.endDate.getTime());
-        }
+        datePicker.getDatePicker().setMaxDate(earthquakeDatabase.getLatest().getDate().getTime());
 
         return datePicker;
     }

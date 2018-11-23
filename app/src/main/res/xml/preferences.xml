@@ -18,7 +18,7 @@
         android:title="Earthquakes">
 
         <ListPreference
-            android:defaultValue="60"
+            android:defaultValue="10"
             android:key="earthquake_count"
             android:summary="How many earthquakes to display"
             android:entries="@array/earthquake_count_values"

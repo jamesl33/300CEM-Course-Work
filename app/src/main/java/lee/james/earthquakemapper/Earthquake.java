@@ -8,6 +8,8 @@ import java.util.Date;
 
 public class Earthquake {
 
+    private static final String LOG_TAG = Earthquake.class.getSimpleName();
+
     private Integer id;
     private Float latitude;
     private Float longitude;

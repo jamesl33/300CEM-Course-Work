@@ -1,16 +1,16 @@
 package lee.james.earthquakemapper;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             mDatePickerFragment.setFlag(DatePickerFragment.PICK_START_DATE);
         } else {
             // The user is choosing the end date
-            mDatePickerFragment.setFlag(DatePickerFragment.PICk_END_DATE);
+            mDatePickerFragment.setFlag(DatePickerFragment.PICK_END_DATE);
         }
 
         // Show the date picker dialog
@@ -72,13 +72,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void visualizeEarthquakes(View view) {
-        // TODO - Launch a google maps activity where we will display the earthquake data
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
-        if (sharedPref.getBoolean(SettingsActivity.KEY_PREF_HEATMAP_SWITCH, false)) {
-            Log.d(LOG_TAG, String.format("launch maps activity and visualize %s earthquakes", sharedPref.getString(SettingsActivity.KEY_PREF_EARTHQUAKE_COUNT, "10")));
-        } else {
-            Log.d(LOG_TAG, String.format("launch maps activity and visualize %s earthquakes as a heatmap", sharedPref.getString(SettingsActivity.KEY_PREF_EARTHQUAKE_COUNT, "10")));
+        if (this.startDate == null || this.endDate == null) {
+            Toast.makeText(this, "You must choose filtering dates!", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        Intent intent = new Intent(this, EarthquakeMapActivity.class);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+
+        try {
+            intent.putExtra("StartDate", dateFormat.format(this.startDate));
+            intent.putExtra("EndDate", dateFormat.format(this.endDate));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        startActivity(intent);
     }
 }
