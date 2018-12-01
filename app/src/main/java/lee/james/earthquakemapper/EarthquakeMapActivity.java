@@ -69,15 +69,11 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
     }
 
     public void focusCurrentEarthquake(View view) {
-        if (currentEarthquake == 0) {
-            this.earthquakeMarkers.get(this.earthquakeMarkers.size() - 1).setStrokeColor(Color.argb(50, 255, 0, 0));
-            this.earthquakeMarkers.get(this.earthquakeMarkers.size() - 1).setFillColor(Color.argb(100, 255, 0, 0));
-            this.earthquakeMarkers.get(this.earthquakeMarkers.size() - 1).setZIndex(0);
-        } else {
-            this.earthquakeMarkers.get(currentEarthquake - 1).setStrokeColor(Color.argb(50, 255, 0, 0));
-            this.earthquakeMarkers.get(currentEarthquake - 1).setFillColor(Color.argb(100, 255, 0, 0));
-            this.earthquakeMarkers.get(currentEarthquake - 1).setZIndex(0);
-        }
+        Integer previousEarthquake = this.currentEarthquake == 0 ? this.earthquakeMarkers.size() - 1 : currentEarthquake - 1;
+
+        this.earthquakeMarkers.get(previousEarthquake).setStrokeColor(Color.argb(50, 255, 0, 0));
+        this.earthquakeMarkers.get(previousEarthquake).setFillColor(Color.argb(100, 255, 0, 0));
+        this.earthquakeMarkers.get(previousEarthquake).setZIndex(0);
 
         this.earthquakeMarkers.get(currentEarthquake).setStrokeColor(Color.argb(50, 0, 0, 255));
         this.earthquakeMarkers.get(currentEarthquake).setFillColor(Color.argb(100, 0, 0, 255));
