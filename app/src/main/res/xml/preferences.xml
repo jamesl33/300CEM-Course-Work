@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
         android:key="maps_category"
@@ -26,6 +27,22 @@
             android:negativeButtonText="@null"
             android:positiveButtonText="@null"
             android:title="Earthquake Count" />
+
+        <com.kizitonwose.colorpreferencecompat.ColorPreferenceCompat
+            android:defaultValue="@color/focusedMarkerDefault"
+            android:key="focused_marker_color"
+            android:summary="The color of focused earthquake marker"
+            android:title="Focused Earthquake Marker Color"
+            app:colorChoices="@array/marker_color_choices"
+            app:colorShape="circle" />
+
+        <com.kizitonwose.colorpreferencecompat.ColorPreferenceCompat
+            android:defaultValue="@color/unfocusedMarkerDefault"
+            android:key="unfocused_marker_color"
+            android:summary="The color of the unfocused earthquake markers"
+            android:title="Unfocused Earthquake Marker Color"
+            app:colorChoices="@array/marker_color_choices"
+            app:colorShape="circle" />
 
     </PreferenceCategory>
 

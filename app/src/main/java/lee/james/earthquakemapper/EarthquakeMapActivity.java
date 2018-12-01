@@ -2,7 +2,6 @@ package lee.james.earthquakemapper;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.preference.PreferenceManager;
@@ -21,6 +20,9 @@ import java.util.ArrayList;
 public class EarthquakeMapActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private static final String LOG_TAG = EarthquakeMapActivity.class.getSimpleName();
+
+    public static final String KEY_FOCUSED_MARKER_COLOR = "focused_marker_color";
+    public static final String KEY_UNFOCUSED_MARKER_COLOR = "unfocused_marker_color";
 
     private GoogleMap googleMap;
     private Integer currentEarthquake = 0;
@@ -58,10 +60,7 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
             for (Earthquake earthquake : this.earthquakes) {
                 this.earthquakeMarkers.add(this.googleMap.addCircle(new CircleOptions()
                         .center(new LatLng(earthquake.getLatitude(), earthquake.getLongitude()))
-                        .radius(100000 * earthquake.getMagnitude())
-                        // TODO - Add a user preference to allow the user to pick a color
-                        .strokeColor(Color.argb(50, 255, 0, 0))
-                        .fillColor(Color.argb(100, 255, 0, 0))));
+                        .radius(100000 * earthquake.getMagnitude())));
 
                 this.focusCurrentEarthquake(null);
             }
@@ -69,14 +68,16 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
     }
 
     public void focusCurrentEarthquake(View view) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
         Integer previousEarthquake = this.currentEarthquake == 0 ? this.earthquakeMarkers.size() - 1 : currentEarthquake - 1;
 
-        this.earthquakeMarkers.get(previousEarthquake).setStrokeColor(Color.argb(50, 255, 0, 0));
-        this.earthquakeMarkers.get(previousEarthquake).setFillColor(Color.argb(100, 255, 0, 0));
+        this.earthquakeMarkers.get(previousEarthquake).setStrokeColor(sharedPref.getInt(EarthquakeMapActivity.KEY_UNFOCUSED_MARKER_COLOR, 0));
+        this.earthquakeMarkers.get(previousEarthquake).setFillColor(sharedPref.getInt(EarthquakeMapActivity.KEY_UNFOCUSED_MARKER_COLOR, 0));
         this.earthquakeMarkers.get(previousEarthquake).setZIndex(0);
 
-        this.earthquakeMarkers.get(currentEarthquake).setStrokeColor(Color.argb(50, 0, 0, 255));
-        this.earthquakeMarkers.get(currentEarthquake).setFillColor(Color.argb(100, 0, 0, 255));
+        this.earthquakeMarkers.get(currentEarthquake).setStrokeColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
+        this.earthquakeMarkers.get(currentEarthquake).setFillColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
         this.earthquakeMarkers.get(currentEarthquake).setZIndex(Float.POSITIVE_INFINITY);
 
         this.googleMap.animateCamera(
