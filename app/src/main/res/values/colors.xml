@@ -1,6 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- Default colors -->
+
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+
+    <!-- Colors to do with the preferences fragment -->
+
+    <color name="focusedMarkerDefault">#64FF0000</color>
+    <color name="unfocusedMarkerDefault">#640000FF</color>
+
+    <string-array name="marker_color_choices">
+        <item>#64FF0000</item>
+        <item>#6400FF00</item>
+        <item>#640000FF</item>
+        <item>#64F44336</item>
+        <item>#64E91E63</item>
+        <item>#649C27B0</item>
+        <item>#64673AB7</item>
+        <item>#643F51B5</item>
+        <item>#642196F3</item>
+        <item>#6403A9F4</item>
+        <item>#6400BCD4</item>
+        <item>#64009688</item>
+        <item>#644CAf50</item>
+        <item>#648BC34A</item>
+        <item>#64CDDC39</item>
+        <item>#64FFEB3B</item>
+        <item>#64FFC107</item>
+        <item>#64FF9800</item>
+        <item>#64FF5722</item>
+        <item>#64795548</item>
+        <item>#649E9E9E</item>
+        <item>#64607D8B</item>
+    </string-array>
+
 </resources>

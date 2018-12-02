@@ -5,4 +5,31 @@
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EarthquakeMapActivity" />
+    tools:context=".EarthquakeMapActivity">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/focus_earthquake_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toStartOf="@id/next_earthquake_button"
+            android:onClick="focusCurrentEarthquake"
+            android:text="@string/focus_earthquake_button" />
+
+        <Button
+            android:id="@+id/next_earthquake_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:onClick="moveToNextEarthquake"
+            android:text="@string/next_earthquake_button" />
+
+    </RelativeLayout>
+
+</fragment>
