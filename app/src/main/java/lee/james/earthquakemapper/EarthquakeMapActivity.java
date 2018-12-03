@@ -125,6 +125,8 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
                 this.focusCurrentEarthquake(null);
             }
         }
+
+        earthquakeDatabase.close(); // Ensure that we close the database once we are finished with it
     }
 
     public void focusCurrentLocation(View view) {
