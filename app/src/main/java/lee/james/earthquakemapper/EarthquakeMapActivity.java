@@ -3,10 +3,11 @@ package lee.james.earthquakemapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.view.View;
-import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,7 +29,17 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
     public static final String KEY_FOCUSED_MARKER_COLOR = "focused_marker_color";
     public static final String KEY_UNFOCUSED_MARKER_COLOR = "unfocused_marker_color";
 
+    // Google
     private GoogleMap googleMap;
+
+    // Floating action button
+    private FloatingActionButton fabMapActions;
+    private Boolean fabExpanded = false;
+    private LinearLayout layoutFabFindCurrentLocation;
+    private LinearLayout layoutFabNextEarthquake;
+    private LinearLayout layoutFabFocusEarthquake;
+
+    // Earthquakes
     private Integer currentEarthquake = 0;
     private ArrayList<Earthquake> earthquakes;
     private ArrayList<Circle> earthquakeMarkers = new ArrayList<>();
@@ -37,9 +48,42 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_earthquake_map);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        this.fabMapActions = this.findViewById(R.id.fabSetting);
+
+        this.layoutFabNextEarthquake = this.findViewById(R.id.layoutFabNextEarthquake);
+        this.layoutFabFocusEarthquake = this.findViewById(R.id.layoutFabFocusEarthquake);
+        this.layoutFabFindCurrentLocation = this.findViewById(R.id.layoutFabFindCurrentLocation);
+
+        this.fabMapActions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!fabExpanded) {
+                    if (sharedPref.getBoolean(SettingsActivity.KEY_PREF_HEATMAP_SWITCH, false)) {
+                        // Open submenus that are relevant to the earthquake heatmap
+                        layoutFabFindCurrentLocation.setVisibility(View.VISIBLE);
+                    } else {
+                        // Open submenus that are relevant to the earthquake marker map
+                        layoutFabFindCurrentLocation.setVisibility(View.VISIBLE);
+                        layoutFabNextEarthquake.setVisibility(View.VISIBLE);
+                        layoutFabFocusEarthquake.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    // Close all submenus
+                    layoutFabFindCurrentLocation.setVisibility(View.INVISIBLE);
+                    layoutFabNextEarthquake.setVisibility(View.INVISIBLE);
+                    layoutFabFocusEarthquake.setVisibility(View.INVISIBLE);
+                }
+
+                fabExpanded = !fabExpanded;
+            }
+        });
     }
 
     @Override
@@ -72,12 +116,6 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
                     .build();
 
             this.googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
-
-            Button focusButton = findViewById(R.id.focus_earthquake_button);
-            Button nextButton = findViewById(R.id.next_earthquake_button);
-
-            focusButton.setVisibility(View.INVISIBLE);
-            nextButton.setVisibility(View.INVISIBLE);
         } else {
             for (Earthquake earthquake : this.earthquakes) {
                 this.earthquakeMarkers.add(this.googleMap.addCircle(new CircleOptions()
@@ -87,6 +125,10 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
                 this.focusCurrentEarthquake(null);
             }
         }
+    }
+
+    public void focusCurrentLocation(View view) {
+        // TODO - When the user clicks the fabCurrentLocation button focus on their location
     }
 
     public void focusCurrentEarthquake(View view) {

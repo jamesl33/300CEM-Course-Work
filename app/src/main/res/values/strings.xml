@@ -30,4 +30,9 @@
     <string name="focus_earthquake_button">Focus Earthquake</string>
     <string name="next_earthquake_button">Next Earthquake</string>
 
+    <!-- Values to do with the floating action button -->
+    <string name="fab_next_earthquake">Next Earthquake</string>
+    <string name="fab_focus_earthquake">Focus Earthquake</string>
+    <string name="fab_current_location">Current Location</string>
+
 </resources>
