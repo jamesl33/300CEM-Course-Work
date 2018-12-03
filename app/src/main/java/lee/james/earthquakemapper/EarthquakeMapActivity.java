@@ -52,6 +52,7 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
     private Boolean fabExpanded = false;
     private LinearLayout layoutFabFindCurrentLocation;
     private LinearLayout layoutFabNextEarthquake;
+    private LinearLayout layoutFabPreviousEarthquake;
     private LinearLayout layoutFabFocusEarthquake;
 
     // Earthquakes
@@ -90,6 +91,7 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
         this.fabMapActions = this.findViewById(R.id.fabSetting);
 
         this.layoutFabNextEarthquake = this.findViewById(R.id.layoutFabNextEarthquake);
+        this.layoutFabPreviousEarthquake = this.findViewById(R.id.layoutFabPreviousEarthquake);
         this.layoutFabFocusEarthquake = this.findViewById(R.id.layoutFabFocusEarthquake);
         this.layoutFabFindCurrentLocation = this.findViewById(R.id.layoutFabFindCurrentLocation);
 
@@ -102,15 +104,18 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
                         layoutFabFindCurrentLocation.setVisibility(View.VISIBLE);
                     } else {
                         // Open submenus that are relevant to the earthquake marker map
-                        layoutFabFindCurrentLocation.setVisibility(View.VISIBLE);
                         layoutFabNextEarthquake.setVisibility(View.VISIBLE);
+                        layoutFabPreviousEarthquake.setVisibility(View.VISIBLE);
                         layoutFabFocusEarthquake.setVisibility(View.VISIBLE);
+                        layoutFabFindCurrentLocation.setVisibility(View.VISIBLE);
                     }
                 } else {
                     // Close all submenus
-                    layoutFabFindCurrentLocation.setVisibility(View.INVISIBLE);
                     layoutFabNextEarthquake.setVisibility(View.INVISIBLE);
+                    layoutFabPreviousEarthquake.setVisibility(View.INVISIBLE);
                     layoutFabFocusEarthquake.setVisibility(View.INVISIBLE);
+                    layoutFabFindCurrentLocation.setVisibility(View.INVISIBLE);
+
                 }
 
                 fabExpanded = !fabExpanded;
@@ -159,7 +164,7 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
 
             if (this.currentEarthquake == null) {
                 this.currentEarthquake = 0;
-                this.focusCurrentEarthquake(null);
+                this.focusCurrentEarthquake(null, true);
             } else {
                 this.earthquakeMarkers.get(this.currentEarthquake).setStrokeColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
                 this.earthquakeMarkers.get(this.currentEarthquake).setFillColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
@@ -207,9 +212,19 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
     }
 
     public void focusCurrentEarthquake(View view) {
+        this.focusCurrentEarthquake(view, true);
+    }
+
+    public void focusCurrentEarthquake(View view, boolean forward) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        Integer previousEarthquake = this.currentEarthquake == 0 ? this.earthquakeMarkers.size() - 1 : currentEarthquake - 1;
+        Integer previousEarthquake;
+
+        if (forward) {
+            previousEarthquake = this.currentEarthquake == 0 ? this.earthquakeMarkers.size() - 1 : currentEarthquake - 1;
+        } else {
+            previousEarthquake = this.currentEarthquake == this.earthquakeMarkers.size() - 1 ? 0 : currentEarthquake + 1;
+        }
 
         // Recolor the previous marker as it is now an unfocused marker
         this.earthquakeMarkers.get(previousEarthquake).setStrokeColor(sharedPref.getInt(EarthquakeMapActivity.KEY_UNFOCUSED_MARKER_COLOR, 0));
@@ -238,7 +253,18 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
         }
 
         // Focus the new current marker
-        this.focusCurrentEarthquake(null);
+        this.focusCurrentEarthquake(null, true);
+    }
+
+    public void moveToPreviousEarthquake(View view) {
+        // If the user is going beyond the first marker; loop
+        if (this.currentEarthquake == 0) {
+            this.currentEarthquake = this.earthquakes.size() - 1;
+        } else {
+            this.currentEarthquake--;
+        }
+
+        this.focusCurrentEarthquake(null, false);
     }
 
     private Location getLastKnownLocation() {
