@@ -1,5 +1,7 @@
 package lee.james.earthquakemapper;
 
+import android.support.annotation.NonNull;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -53,4 +55,13 @@ class Earthquake {
         return mDate;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(Locale.ENGLISH, "%d", mId);
+    }
+
+    public boolean equals(Object obj) {
+        return obj instanceof Earthquake && mId.equals(((Earthquake) obj).getId());
+    }
 }
