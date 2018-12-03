@@ -2,13 +2,22 @@ package lee.james.earthquakemapper;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -16,11 +25,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.google.maps.android.heatmaps.WeightedLatLng;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class EarthquakeMapActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -31,6 +43,9 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
 
     // Google
     private GoogleMap googleMap;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private boolean mLocationPermissionGranted;
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
     // Floating action button
     private FloatingActionButton fabMapActions;
@@ -40,14 +55,31 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
     private LinearLayout layoutFabFocusEarthquake;
 
     // Earthquakes
-    private Integer currentEarthquake = 0;
+    private Integer currentEarthquake;
     private ArrayList<Earthquake> earthquakes;
     private ArrayList<Circle> earthquakeMarkers = new ArrayList<>();
+
+    // Markers
+    private LatLng currentLocation;
+    private Marker currentLocationMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("currentEarthquake")) {
+                this.currentEarthquake = savedInstanceState.getInt("currentEarthquake");
+            }
+
+            if (savedInstanceState.containsKey("my/latitude") && savedInstanceState.containsKey("my/longitude")) {
+                this.currentLocation = new LatLng(savedInstanceState.getDouble("my/latitude"), savedInstanceState.getDouble("my/longitude"));
+            }
+        }
+
         setContentView(R.layout.activity_earthquake_map);
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -120,17 +152,58 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
             for (Earthquake earthquake : this.earthquakes) {
                 this.earthquakeMarkers.add(this.googleMap.addCircle(new CircleOptions()
                         .center(new LatLng(earthquake.getLatitude(), earthquake.getLongitude()))
-                        .radius(100000 * earthquake.getMagnitude())));
-
-                this.focusCurrentEarthquake(null);
+                        .radius(100000 * earthquake.getMagnitude())
+                        .strokeColor(sharedPref.getInt(EarthquakeMapActivity.KEY_UNFOCUSED_MARKER_COLOR, 0))
+                        .fillColor(sharedPref.getInt(EarthquakeMapActivity.KEY_UNFOCUSED_MARKER_COLOR, 0))));
             }
+
+            if (this.currentEarthquake == null) {
+                this.currentEarthquake = 0;
+                this.focusCurrentEarthquake(null);
+            } else {
+                this.earthquakeMarkers.get(this.currentEarthquake).setStrokeColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
+                this.earthquakeMarkers.get(this.currentEarthquake).setFillColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
+            }
+        }
+
+        // If we already have the users location, redraw the marker
+        if (this.currentLocation != null) {
+            this.currentLocationMarker = this.googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(this.currentLocation.latitude, this.currentLocation.longitude))
+                    .title("My Location"));
         }
 
         earthquakeDatabase.close(); // Ensure that we close the database once we are finished with it
     }
 
     public void focusCurrentLocation(View view) {
-        // TODO - When the user clicks the fabCurrentLocation button focus on their location
+        if (!this.mLocationPermissionGranted) {
+            getLocationPermission();
+        }
+
+        Location location = getLastKnownLocation();
+
+        if (location == null) {
+            Toast.makeText(this, "Unable to find your location", Toast.LENGTH_SHORT).show();
+        } else {
+            // If we don't have the users location or it's outdated; update it
+            if (this.currentLocation == null || (this.currentLocation.latitude != location.getLatitude() && this.currentLocation.longitude != location.getLongitude())) {
+                if (this.currentLocationMarker != null) {
+                    this.currentLocationMarker.remove();
+                }
+
+                this.currentLocationMarker = this.googleMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                        .title("My Location"));
+
+                this.currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+            }
+
+            // Move the camera to the user location marker
+            this.googleMap.animateCamera(
+                    CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())), 400, null
+            );
+        }
     }
 
     public void focusCurrentEarthquake(View view) {
@@ -138,14 +211,17 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
 
         Integer previousEarthquake = this.currentEarthquake == 0 ? this.earthquakeMarkers.size() - 1 : currentEarthquake - 1;
 
+        // Recolor the previous marker as it is now an unfocused marker
         this.earthquakeMarkers.get(previousEarthquake).setStrokeColor(sharedPref.getInt(EarthquakeMapActivity.KEY_UNFOCUSED_MARKER_COLOR, 0));
         this.earthquakeMarkers.get(previousEarthquake).setFillColor(sharedPref.getInt(EarthquakeMapActivity.KEY_UNFOCUSED_MARKER_COLOR, 0));
         this.earthquakeMarkers.get(previousEarthquake).setZIndex(0);
 
+        // Recolor the current marker as it is now the focused marker
         this.earthquakeMarkers.get(currentEarthquake).setStrokeColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
         this.earthquakeMarkers.get(currentEarthquake).setFillColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
         this.earthquakeMarkers.get(currentEarthquake).setZIndex(Float.POSITIVE_INFINITY);
 
+        // Move the camera to the focused marker
         this.googleMap.animateCamera(
                 CameraUpdateFactory.newLatLng(new LatLng(this.earthquakes.get(this.currentEarthquake).getLatitude(), this.earthquakes.get(this.currentEarthquake).getLongitude())),
                 400,
@@ -154,12 +230,81 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
     }
 
     public void moveToNextEarthquake(View view) {
+        // If the user has looked at all the markers; loop
         if (this.currentEarthquake >= this.earthquakes.size() - 1) {
             this.currentEarthquake = 0;
         } else {
             this.currentEarthquake++;
         }
 
+        // Focus the new current marker
         this.focusCurrentEarthquake(null);
+    }
+
+    private Location getLastKnownLocation() {
+        Location currentLocation = null;
+        LocationManager mLocationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+        List<String> enabledProviders = mLocationManager.getProviders(true);
+
+        for (String provider : enabledProviders) {
+            // We should be able to safely ignore the warning about location permissions since we are
+            // handling getting the users permission.
+            Location testLocation = mLocationManager.getLastKnownLocation(provider);
+
+            // Update the location if its more accurate than the old location
+            if (testLocation != null) {
+                if ((currentLocation == null) || (testLocation.getAccuracy() > currentLocation.getAccuracy())) {
+                    currentLocation = testLocation;
+                }
+            }
+        }
+
+        return currentLocation;
+    }
+
+    /**
+     * Prompts the user for permission to use the device location.
+     * https://developers.google.com/maps/documentation/android-sdk/current-place-tutorial
+     */
+    private void getLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            this.mLocationPermissionGranted = true;
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, EarthquakeMapActivity.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+    }
+
+    /**
+     * Handles the result of the request for location permissions.
+     * https://developers.google.com/maps/documentation/android-sdk/current-place-tutorial
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        this.mLocationPermissionGranted = false;
+
+        switch (requestCode) {
+            case EarthquakeMapActivity.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mLocationPermissionGranted = true;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // currentEarthquake will be null if we are in heatmap mode
+        if (this.currentEarthquake != null) {
+            outState.putInt("currentEarthquake", this.currentEarthquake);
+        }
+
+        // currentLocation will be null if the user hasn't allowed permission or hasn't clicked the
+        // current location button yet
+        if (this.currentLocation != null) {
+            outState.putDouble("my/latitude", this.currentLocation.latitude);
+            outState.putDouble("my/longitude", this.currentLocation.longitude);
+        }
+
+        super.onSaveInstanceState(outState);
     }
 }
