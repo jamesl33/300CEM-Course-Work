@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -14,6 +15,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.maps.android.heatmaps.HeatmapTileProvider;
+import com.google.maps.android.heatmaps.WeightedLatLng;
 
 import java.util.ArrayList;
 
@@ -55,7 +59,25 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
         }
 
         if (sharedPref.getBoolean(SettingsActivity.KEY_PREF_HEATMAP_SWITCH, false)) {
-            // TODO - Generate a heatmap
+            ArrayList<WeightedLatLng> heatmapData = new ArrayList<>();
+
+            for (Earthquake earthquake : this.earthquakes) {
+                heatmapData.add(new WeightedLatLng(new LatLng(earthquake.getLatitude(), earthquake.getLongitude()), earthquake.getMagnitude()));
+            }
+
+            HeatmapTileProvider mProvider = new HeatmapTileProvider.Builder()
+                    .weightedData(heatmapData)
+                    .radius(50)
+                    .opacity(1)
+                    .build();
+
+            this.googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
+
+            Button focusButton = findViewById(R.id.focus_earthquake_button);
+            Button nextButton = findViewById(R.id.next_earthquake_button);
+
+            focusButton.setVisibility(View.INVISIBLE);
+            nextButton.setVisibility(View.INVISIBLE);
         } else {
             for (Earthquake earthquake : this.earthquakes) {
                 this.earthquakeMarkers.add(this.googleMap.addCircle(new CircleOptions()
