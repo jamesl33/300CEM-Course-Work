@@ -1,8 +1,12 @@
 package lee.james.earthquakemapper;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -33,6 +37,7 @@ import com.google.maps.android.heatmaps.WeightedLatLng;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class EarthquakeMapActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -64,9 +69,15 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
     private LatLng currentLocation;
     private Marker currentLocationMarker;
 
+    // Shake detection
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+    private ShakeDetector mShakeDetector;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_earthquake_map);
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey("currentEarthquake")) {
@@ -77,8 +88,6 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
                 this.currentLocation = new LatLng(savedInstanceState.getDouble("my/latitude"), savedInstanceState.getDouble("my/longitude"));
             }
         }
-
-        setContentView(R.layout.activity_earthquake_map);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -119,6 +128,19 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
                 }
 
                 fabExpanded = !fabExpanded;
+            }
+        });
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mShakeDetector = new ShakeDetector();
+        mShakeDetector.setOnShakeListener(new ShakeDetector.OnShakeListener() {
+
+            @Override
+            public void onShake() {
+                int previousEarthquake = currentEarthquake;
+                currentEarthquake = new Random().nextInt(earthquakes.size());
+                focusCurrentEarthquake(previousEarthquake);
             }
         });
     }
@@ -164,7 +186,7 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
 
             if (this.currentEarthquake == null) {
                 this.currentEarthquake = 0;
-                this.focusCurrentEarthquake(null, true);
+                this.focusNextEarthquake();
             } else {
                 this.earthquakeMarkers.get(this.currentEarthquake).setStrokeColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
                 this.earthquakeMarkers.get(this.currentEarthquake).setFillColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
@@ -211,20 +233,20 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
         }
     }
 
-    public void focusCurrentEarthquake(View view) {
-        this.focusCurrentEarthquake(view, true);
+    public void _moveCameraToEarthquake() {
+        this.googleMap.animateCamera(
+                CameraUpdateFactory.newLatLng(new LatLng(this.earthquakes.get(this.currentEarthquake).getLatitude(), this.earthquakes.get(this.currentEarthquake).getLongitude())),
+                400,
+                null
+        );
     }
 
-    public void focusCurrentEarthquake(View view, boolean forward) {
+    public void focusCurrentEarthquake(View view) {
+        this._moveCameraToEarthquake();
+    }
+
+    public void focusCurrentEarthquake(int previousEarthquake) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
-        Integer previousEarthquake;
-
-        if (forward) {
-            previousEarthquake = this.currentEarthquake == 0 ? this.earthquakeMarkers.size() - 1 : currentEarthquake - 1;
-        } else {
-            previousEarthquake = this.currentEarthquake == this.earthquakeMarkers.size() - 1 ? 0 : currentEarthquake + 1;
-        }
 
         // Recolor the previous marker as it is now an unfocused marker
         this.earthquakeMarkers.get(previousEarthquake).setStrokeColor(sharedPref.getInt(EarthquakeMapActivity.KEY_UNFOCUSED_MARKER_COLOR, 0));
@@ -236,12 +258,15 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
         this.earthquakeMarkers.get(currentEarthquake).setFillColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
         this.earthquakeMarkers.get(currentEarthquake).setZIndex(Float.POSITIVE_INFINITY);
 
-        // Move the camera to the focused marker
-        this.googleMap.animateCamera(
-                CameraUpdateFactory.newLatLng(new LatLng(this.earthquakes.get(this.currentEarthquake).getLatitude(), this.earthquakes.get(this.currentEarthquake).getLongitude())),
-                400,
-                null
-        );
+        this._moveCameraToEarthquake();
+    }
+
+    public void focusNextEarthquake() {
+        this.focusCurrentEarthquake(this.currentEarthquake == 0 ? this.earthquakeMarkers.size() - 1 : currentEarthquake - 1);
+    }
+
+    public void focusPreviousEarthquake() {
+        this.focusCurrentEarthquake(this.currentEarthquake == this.earthquakeMarkers.size() - 1 ? 0 : currentEarthquake + 1);
     }
 
     public void moveToNextEarthquake(View view) {
@@ -253,7 +278,7 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
         }
 
         // Focus the new current marker
-        this.focusCurrentEarthquake(null, true);
+        this.focusNextEarthquake();
     }
 
     public void moveToPreviousEarthquake(View view) {
@@ -264,7 +289,8 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
             this.currentEarthquake--;
         }
 
-        this.focusCurrentEarthquake(null, false);
+        // Focus the new current marker
+        this.focusPreviousEarthquake();
     }
 
     private Location getLastKnownLocation() {
@@ -275,7 +301,7 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
         for (String provider : enabledProviders) {
             // We should be able to safely ignore the warning about location permissions since we are
             // handling getting the users permission.
-            Location testLocation = mLocationManager.getLastKnownLocation(provider);
+            @SuppressLint("MissingPermission") Location testLocation = mLocationManager.getLastKnownLocation(provider);
 
             // Update the location if its more accurate than the old location
             if (testLocation != null) {
@@ -332,6 +358,18 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
         }
 
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(mShakeDetector, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
+    }
+
+    @Override
+    public void onPause() {
+        mSensorManager.unregisterListener(mShakeDetector);
+        super.onPause();
     }
 
 }
