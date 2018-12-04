@@ -333,4 +333,5 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
 
         super.onSaveInstanceState(outState);
     }
+
 }

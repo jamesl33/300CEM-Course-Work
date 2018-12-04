@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class Earthquake {
 
@@ -55,6 +56,7 @@ public class Earthquake {
     @NonNull
     @Override
     public String toString() {
-        return String.format("%d", this.id);
+        return String.format(Locale.getDefault(), "%d", this.id);
     }
+
 }
