@@ -21,8 +21,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    protected Date startDate;
-    protected Date endDate;
+    private Date startDate;
+    private Date endDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void pickStartDate(View view) {
         // Use the current date as the default date for the date picker
-        Calendar cal = Calendar.getInstance();
+        final Calendar cal = Calendar.getInstance();
 
         if (this.startDate != null) {
             cal.setTime(this.startDate);
@@ -73,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
         DatePickerDialog startDatePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int day) {
-                startDate = new Date(year - 1900, month, day);
+                cal.set(year, month, day);
+                startDate = cal.getTime();
             }
         }, year, month, day);
 
@@ -89,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void pickEndDate(View view) {
         // Use the current date as the default date for the date picker
-        Calendar cal = Calendar.getInstance();
+        final Calendar cal = Calendar.getInstance();
 
         if (this.endDate != null) {
             cal.setTime(this.endDate);
@@ -102,7 +103,8 @@ public class MainActivity extends AppCompatActivity {
         DatePickerDialog endDatePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int day) {
-                endDate = new Date(year - 1900, month, day);
+                cal.set(year, month, day);
+                endDate = cal.getTime();
             }
         }, year, month, day);
 
