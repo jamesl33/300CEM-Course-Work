@@ -138,9 +138,11 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
 
             @Override
             public void onShake() {
-                int previousEarthquake = currentEarthquake;
-                currentEarthquake = new Random().nextInt(earthquakes.size());
-                focusCurrentEarthquake(previousEarthquake);
+                if (!sharedPref.getBoolean(SettingsActivity.KEY_PREF_HEATMAP_SWITCH, false)) {
+                    int previousEarthquake = currentEarthquake;
+                    currentEarthquake = new Random().nextInt(earthquakes.size());
+                    focusCurrentEarthquake(previousEarthquake);
+                }
             }
         });
     }
