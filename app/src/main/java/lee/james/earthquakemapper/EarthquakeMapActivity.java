@@ -161,6 +161,15 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
             this.earthquakes = earthquakeDatabase.getEarthquakes(intent.getStringExtra("StartDate"), intent.getStringExtra("EndDate"), Integer.valueOf(earthquakeCount));
         }
 
+        // Make sure that there is actually some earthquakes
+        if (this.earthquakes.size() <= 0) {
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("message", "There were no significant earthquake during that time period");
+            setResult(RESULT_CANCELED, returnIntent);
+            this.finish();
+            return;
+        }
+
         if (sharedPref.getBoolean(SettingsActivity.KEY_PREF_HEATMAP_SWITCH, false)) {
             ArrayList<WeightedLatLng> heatmapData = new ArrayList<>();
 

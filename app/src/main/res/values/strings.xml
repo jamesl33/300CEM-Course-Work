@@ -4,9 +4,9 @@
     <string name="app_name">Earthquake Mapper</string>
 
     <!-- Values related to MainActivity -->
-    <string name="launch_maps_button">Visualize Earthquakes</string>
-    <string name="date_picker_start_date">Start Date</string>
-    <string name="date_picker_end_date">End Date</string>
+    <string name="date_picker_start_date">Start Date Filter</string>
+    <string name="date_picker_end_date">End Date Filter</string>
+    <string name="launch_maps_button">Visualise Earthquake Data</string>
 
     <!-- Values related to toolbar actions -->
     <string name="action_settings">Settings</string>

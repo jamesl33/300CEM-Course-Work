@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
@@ -20,6 +21,8 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
+
+    public static final int MAP_EARTHQUAKES_REQUEST = 1;
 
     private Date startDate;
     private Date endDate;
@@ -33,6 +36,12 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // Set the default values for the start/end date
+        EarthquakeDatabaseHelper earthquakeDatabase = new EarthquakeDatabaseHelper(this);
+        this.startDate = earthquakeDatabase.getOldest().getDate();
+        this.endDate = earthquakeDatabase.getLatest().getDate();
+        this.updateDatePreviews();
     }
 
     @Override
@@ -58,13 +67,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void updateDatePreviews() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+        EditText edit_text_start_date = findViewById(R.id.edit_text_start_date);
+        EditText edit_text_end_date = findViewById(R.id.edit_text_end_date);
+
+        edit_text_start_date.setText(dateFormat.format(this.startDate));
+        edit_text_end_date.setText(dateFormat.format(this.endDate));
+    }
+
     public void pickStartDate(View view) {
         // Use the current date as the default date for the date picker
         final Calendar cal = Calendar.getInstance();
 
-        if (this.startDate != null) {
-            cal.setTime(this.startDate);
-        }
+        cal.setTime(this.startDate);
 
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH);
@@ -75,15 +91,12 @@ public class MainActivity extends AppCompatActivity {
             public void onDateSet(DatePicker view, int year, int month, int day) {
                 cal.set(year, month, day);
                 startDate = cal.getTime();
+                updateDatePreviews();
             }
         }, year, month, day);
 
         EarthquakeDatabaseHelper earthquakeDatabase = new EarthquakeDatabaseHelper(this);
-
-        if (this.startDate == null) {
-            startDatePicker.getDatePicker().setMinDate(earthquakeDatabase.getOldest().getDate().getTime());
-        }
-
+        startDatePicker.getDatePicker().setMinDate(earthquakeDatabase.getOldest().getDate().getTime());
         startDatePicker.getDatePicker().setMaxDate(earthquakeDatabase.getLatest().getDate().getTime());
         startDatePicker.show();
     }
@@ -105,24 +118,17 @@ public class MainActivity extends AppCompatActivity {
             public void onDateSet(DatePicker view, int year, int month, int day) {
                 cal.set(year, month, day);
                 endDate = cal.getTime();
+                updateDatePreviews();
             }
         }, year, month, day);
 
-        if (this.startDate != null) {
-            endDatePicker.getDatePicker().setMinDate(this.startDate.getTime());
-        }
-
+        endDatePicker.getDatePicker().setMinDate(this.startDate.getTime());
         EarthquakeDatabaseHelper earthquakeDatabase = new EarthquakeDatabaseHelper(this);
         endDatePicker.getDatePicker().setMaxDate(earthquakeDatabase.getLatest().getDate().getTime());
         endDatePicker.show();
     }
 
     public void visualizeEarthquakes(View view) {
-        if (this.startDate == null || this.endDate == null) {
-            Toast.makeText(this, "You must choose filtering dates!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         Intent intent = new Intent(this, EarthquakeMapActivity.class);
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
 
@@ -133,7 +139,16 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        startActivity(intent);
+        startActivityForResult(intent, MainActivity.MAP_EARTHQUAKES_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Inform the user if the maps activity closed with the canceled flag
+        if (requestCode == MainActivity.MAP_EARTHQUAKES_REQUEST && resultCode == RESULT_CANCELED) {
+            Toast errorMessage = Toast.makeText(this, data.getStringExtra("message"), Toast.LENGTH_LONG);
+            errorMessage.show();
+        }
     }
 
 }

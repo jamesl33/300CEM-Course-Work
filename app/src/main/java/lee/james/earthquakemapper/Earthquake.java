@@ -18,7 +18,7 @@ public class Earthquake {
     private Date date;
 
     public Earthquake(Integer id, Float latitude, Float longitude, Float magnitude, String date) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
 
         this.id = id;
         this.latitude = latitude;
