@@ -145,9 +145,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Inform the user if the maps activity closed with the canceled flag
-        if (requestCode == MainActivity.MAP_EARTHQUAKES_REQUEST && resultCode == RESULT_CANCELED) {
-            Toast errorMessage = Toast.makeText(this, data.getStringExtra("message"), Toast.LENGTH_LONG);
-            errorMessage.show();
+        if (data != null) {
+            if (requestCode == MainActivity.MAP_EARTHQUAKES_REQUEST && resultCode == RESULT_CANCELED) {
+                Toast errorMessage = Toast.makeText(this, data.getStringExtra("message"), Toast.LENGTH_LONG);
+                errorMessage.show();
+            }
         }
     }
 

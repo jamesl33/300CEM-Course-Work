@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginBottom="70dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -57,6 +57,7 @@
                 android:layout_height="wrap_content"
                 android:onClick="focusCurrentLocation"
                 android:src="@drawable/ic_my_location_black_24dp"
+                android:background="@color/colorPrimaryDark"
                 app:fabSize="mini" />
 
         </LinearLayout>
@@ -66,7 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginBottom="120dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -99,6 +100,7 @@
                 android:layout_height="wrap_content"
                 android:onClick="moveToPreviousEarthquake"
                 android:src="@drawable/ic_navigate_before_black_24dp"
+                android:background="@color/colorPrimaryDark"
                 app:fabSize="mini" />
 
         </LinearLayout>
@@ -108,7 +110,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginBottom="170dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -141,6 +143,7 @@
                 android:layout_height="wrap_content"
                 android:onClick="moveToNextEarthquake"
                 android:src="@drawable/ic_navigate_next_black_24dp"
+                android:background="@color/colorPrimaryDark"
                 app:fabSize="mini" />
 
         </LinearLayout>
@@ -150,7 +153,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginBottom="220dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -183,6 +186,7 @@
                 android:layout_height="wrap_content"
                 android:onClick="focusCurrentEarthquake"
                 android:src="@drawable/ic_filter_center_focus_black_24dp"
+                android:background="@color/colorPrimaryDark"
                 app:fabSize="mini" />
 
         </LinearLayout>
