@@ -6,11 +6,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
-import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
@@ -42,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
         this.startDate = earthquakeDatabase.getOldest().getDate();
         this.endDate = earthquakeDatabase.getLatest().getDate();
         this.updateDatePreviews();
+
+        // Make the app description scrollable if it doesn't fit on the users display
+        TextView app_description = findViewById(R.id.text_view_app_description);
+        app_description.setMovementMethod(new ScrollingMovementMethod());
     }
 
     @Override
@@ -69,11 +74,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateDatePreviews() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-        EditText edit_text_start_date = findViewById(R.id.edit_text_start_date);
-        EditText edit_text_end_date = findViewById(R.id.edit_text_end_date);
+        TextView text_view_start_date = findViewById(R.id.text_view_start_date);
+        TextView text_view_end_date = findViewById(R.id.text_view_end_date);
 
-        edit_text_start_date.setText(dateFormat.format(this.startDate));
-        edit_text_end_date.setText(dateFormat.format(this.endDate));
+        text_view_start_date.setText(dateFormat.format(this.startDate));
+        text_view_end_date.setText(dateFormat.format(this.endDate));
     }
 
     public void pickStartDate(View view) {
@@ -98,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         EarthquakeDatabaseHelper earthquakeDatabase = new EarthquakeDatabaseHelper(this);
         startDatePicker.getDatePicker().setMinDate(earthquakeDatabase.getOldest().getDate().getTime());
         startDatePicker.getDatePicker().setMaxDate(earthquakeDatabase.getLatest().getDate().getTime());
+        startDatePicker.getDatePicker().setDescendantFocusability(DatePicker.FOCUS_BLOCK_DESCENDANTS);
         startDatePicker.show();
     }
 
@@ -125,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
         endDatePicker.getDatePicker().setMinDate(this.startDate.getTime());
         EarthquakeDatabaseHelper earthquakeDatabase = new EarthquakeDatabaseHelper(this);
         endDatePicker.getDatePicker().setMaxDate(earthquakeDatabase.getLatest().getDate().getTime());
+        endDatePicker.getDatePicker().setDescendantFocusability(DatePicker.FOCUS_BLOCK_DESCENDANTS);
         endDatePicker.show();
     }
 

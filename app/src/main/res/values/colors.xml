@@ -37,4 +37,8 @@
         <item>#64607D8B</item>
     </string-array>
 
+    <!-- Extra colors -->
+
+    <color name="black">#000000</color>
+
 </resources>

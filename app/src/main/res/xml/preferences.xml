@@ -15,8 +15,8 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="earthquakes_category"
-        android:title="Earthquakes">
+        android:key="marker_category"
+        android:title="Markers">
 
         <ListPreference
             android:defaultValue="10"
@@ -26,13 +26,14 @@
             android:entryValues="@array/earthquake_count_values"
             android:negativeButtonText="@null"
             android:positiveButtonText="@null"
-            android:title="Earthquake Count" />
+            android:title="Earthquake Count"
+            android:widgetLayout="@layout/arrow_dropdown"/>
 
         <com.kizitonwose.colorpreferencecompat.ColorPreferenceCompat
             android:defaultValue="@color/focusedMarkerDefault"
             android:key="focused_marker_color"
-            android:summary="The color of focused earthquake marker"
-            android:title="Focused Earthquake Marker Color"
+            android:summary="The color of the focused earthquake marker"
+            android:title="Focused Marker Color"
             app:colorChoices="@array/marker_color_choices"
             app:colorShape="circle" />
 
@@ -40,7 +41,7 @@
             android:defaultValue="@color/unfocusedMarkerDefault"
             android:key="unfocused_marker_color"
             android:summary="The color of the unfocused earthquake markers"
-            android:title="Unfocused Earthquake Marker Color"
+            android:title="Unfocused Marker Color"
             app:colorChoices="@array/marker_color_choices"
             app:colorShape="circle" />
 

@@ -33,38 +33,32 @@
             android:id="@+id/button_end_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:onClick="pickEndDate"
             android:text="@string/date_picker_end_date"
-            app:layout_constraintBottom_toTopOf="@+id/edit_text_end_date"
+            app:layout_constraintBottom_toTopOf="@+id/button_display_maps"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintWidth_percent="0.5" />
 
         <Button
             android:id="@+id/button_start_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:onClick="pickStartDate"
             android:text="@string/date_picker_start_date"
-            app:layout_constraintBottom_toTopOf="@+id/edit_text_start_date"
+            app:layout_constraintBottom_toTopOf="@+id/button_end_date"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintWidth_percent="0.5" />
 
         <Button
             android:id="@+id/button_display_maps"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp"
             android:onClick="visualizeEarthquakes"
             android:text="@string/launch_maps_button"
@@ -72,38 +66,45 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <EditText
-            android:id="@+id/edit_text_start_date"
+        <TextView
+            android:id="@+id/text_view_end_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:background="@null"
-            android:ems="10"
-            android:enabled="false"
-            android:inputType="date"
-            android:singleLine="false"
+            android:text=""
             android:textAlignment="center"
-            app:layout_constraintBottom_toTopOf="@+id/button_end_date"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:textStyle="bold"
+            app:layout_constraintBaseline_toBaselineOf="@+id/button_end_date"
+            app:layout_constraintEnd_toStartOf="@+id/button_end_date"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.5" />
 
-        <EditText
-            android:id="@+id/edit_text_end_date"
+        <TextView
+            android:id="@+id/text_view_start_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:background="@null"
-            android:ems="10"
-            android:enabled="false"
-            android:inputType="date"
+            android:text=""
             android:textAlignment="center"
-            app:layout_constraintBottom_toTopOf="@+id/button_display_maps"
+            android:textStyle="bold"
+            app:layout_constraintBaseline_toBaselineOf="@+id/button_start_date"
+            app:layout_constraintEnd_toStartOf="@+id/button_start_date"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.5" />
+
+        <TextView
+            android:id="@+id/text_view_app_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/app_description"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
 

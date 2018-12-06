@@ -2,6 +2,7 @@
 
     <!-- Values related to main app -->
     <string name="app_name">Earthquake Mapper</string>
+    <string name="app_description">Earthquake Mapper, enables the visualisation of earthquake data collected by The United States Geological Survery (USGS). The app has a marker mode which will place a marker at the location of each earthquake. The larger the marker, the higher the magnitude. The app also contains a heatmap mode which will allow you to observe the concentration of earthquakes, as opposed to the location and magnitude of each earthquake.\n\nEarthquake mapper also contains:\n\u2022 A customisable color preference (found in the preferences), which allows you to modify the color of focused/unfocused markers.\n\u2022 A preference to allow you to modify the number of earthquakes processed.\n\u2022 Only the most significant earthquakes from 1950 to today (About 20,000).\n\nTo get started, choose two dates using the buttons below.</string>
 
     <!-- Values related to MainActivity -->
     <string name="date_picker_start_date">Start Date Filter</string>
