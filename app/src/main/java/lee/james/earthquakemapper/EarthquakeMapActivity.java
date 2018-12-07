@@ -20,8 +20,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -41,17 +39,14 @@ import java.util.Random;
 
 public class EarthquakeMapActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    public static final String KEY_FOCUSED_MARKER_COLOR = "focused_marker_color";
-    public static final String KEY_UNFOCUSED_MARKER_COLOR = "unfocused_marker_color";
+    // Permissions
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
     // Google
     private GoogleMap mGoogleMap;
-    private FusedLocationProviderClient mFusedLocationClient;
     private boolean mLocationPermissionGranted;
 
     // Floating action button
-    private FloatingActionButton fabMapActions;
     private Boolean mFabExpanded = false;
     private LinearLayout mLayoutFabFindCurrentLocation;
     private LinearLayout mLayoutFabNextEarthquake;
@@ -87,22 +82,20 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
             }
         }
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        fabMapActions = findViewById(R.id.fabSetting);
+        FloatingActionButton mFabMapActions = findViewById(R.id.fabSetting);
 
         mLayoutFabNextEarthquake = findViewById(R.id.layoutFabNextEarthquake);
         mLayoutFabPreviousEarthquake = findViewById(R.id.layoutFabPreviousEarthquake);
         mLayoutFabFocusEarthquake = findViewById(R.id.layoutFabFocusEarthquake);
         mLayoutFabFindCurrentLocation = findViewById(R.id.layoutFabFindCurrentLocation);
 
-        fabMapActions.setOnClickListener(new View.OnClickListener() {
+        mFabMapActions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!mFabExpanded) {
@@ -156,9 +149,11 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
         String earthquakeCount = sharedPref.getString(SettingsActivity.KEY_PREF_EARTHQUAKE_COUNT, "All");
 
         if (earthquakeCount.equals("All")) {
-            mEarthquakes = earthquakeDatabase.getEarthquakes(intent.getStringExtra("StartDate"), intent.getStringExtra("EndDate"));
+            mEarthquakes = earthquakeDatabase.getEarthquakes(intent.getStringExtra("StartDate"),
+                    intent.getStringExtra("EndDate"));
         } else {
-            mEarthquakes = earthquakeDatabase.getEarthquakes(intent.getStringExtra("StartDate"), intent.getStringExtra("EndDate"), Integer.valueOf(earthquakeCount));
+            mEarthquakes = earthquakeDatabase.getEarthquakes(intent.getStringExtra("StartDate"),
+                    intent.getStringExtra("EndDate"), Integer.valueOf(earthquakeCount));
         }
 
         // Make sure that there is actually some earthquakes
@@ -171,45 +166,54 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
         }
 
         if (sharedPref.getBoolean(SettingsActivity.KEY_PREF_HEATMAP_SWITCH, false)) {
-            ArrayList<WeightedLatLng> heatmapData = new ArrayList<>();
-
-            for (Earthquake earthquake : mEarthquakes) {
-                heatmapData.add(new WeightedLatLng(new LatLng(earthquake.getLatitude(), earthquake.getLongitude()), earthquake.getMagnitude()));
-            }
-
-            HeatmapTileProvider mProvider = new HeatmapTileProvider.Builder()
-                    .weightedData(heatmapData)
-                    .radius(50)
-                    .opacity(1)
-                    .build();
-
-            googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
+            generateHeatMap();
         } else {
-            for (Earthquake earthquake : mEarthquakes) {
-                mEarthquakeMarkers.add(googleMap.addCircle(new CircleOptions()
-                        .center(new LatLng(earthquake.getLatitude(), earthquake.getLongitude()))
-                        .radius(100000 * earthquake.getMagnitude())
-                        .strokeColor(sharedPref.getInt(EarthquakeMapActivity.KEY_UNFOCUSED_MARKER_COLOR, 0))
-                        .fillColor(sharedPref.getInt(EarthquakeMapActivity.KEY_UNFOCUSED_MARKER_COLOR, 0))));
-            }
-
-            if (mCurrentEarthquake == null) {
-                mCurrentEarthquake = 0;
-                focusNextEarthquake();
-            } else {
-                mEarthquakeMarkers.get(mCurrentEarthquake).setStrokeColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
-                mEarthquakeMarkers.get(mCurrentEarthquake).setFillColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
-            }
+            placeEarthquakeMarkers(sharedPref.getInt(SettingsActivity.KEY_FOCUSED_MARKER_COLOR, 0),
+                    sharedPref.getInt(SettingsActivity.KEY_UNFOCUSED_MARKER_COLOR, 0));
         }
 
         // If we already have the users location, redraw the marker
         if (mCurrentLocation != null) {
-            mCurrentLocationMarker = googleMap.addMarker(new MarkerOptions()
+            mCurrentLocationMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .position(new LatLng(mCurrentLocation.latitude, mCurrentLocation.longitude))
                     .title("My Location"));
         }
 
         earthquakeDatabase.close(); // Ensure that we close the database once we are finished with it
+    }
+
+    public void placeEarthquakeMarkers(int focusedColor, int unfocusedColor) {
+        for (Earthquake earthquake : mEarthquakes) {
+            mEarthquakeMarkers.add(mGoogleMap.addCircle(new CircleOptions()
+                    .center(new LatLng(earthquake.getLatitude(), earthquake.getLongitude()))
+                    .radius(100000 * earthquake.getMagnitude())
+                    .strokeColor(unfocusedColor)
+                    .fillColor(unfocusedColor)));
+        }
+
+        if (mCurrentEarthquake == null) {
+            mCurrentEarthquake = 0;
+            focusNextEarthquake();
+        } else {
+            mEarthquakeMarkers.get(mCurrentEarthquake).setStrokeColor(focusedColor);
+            mEarthquakeMarkers.get(mCurrentEarthquake).setFillColor(focusedColor);
+        }
+    }
+
+    public void generateHeatMap() {
+        ArrayList<WeightedLatLng> heatmapData = new ArrayList<>();
+
+        for (Earthquake earthquake : mEarthquakes) {
+            heatmapData.add(new WeightedLatLng(new LatLng(earthquake.getLatitude(), earthquake.getLongitude()), earthquake.getMagnitude()));
+        }
+
+        HeatmapTileProvider mProvider = new HeatmapTileProvider.Builder()
+                .weightedData(heatmapData)
+                .radius(50)
+                .opacity(1)
+                .build();
+
+        mGoogleMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
     }
 
     public void focusCurrentLocation(View view) {
@@ -258,13 +262,13 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         // Recolor the previous marker as it is now an unfocused marker
-        mEarthquakeMarkers.get(previousEarthquake).setStrokeColor(sharedPref.getInt(EarthquakeMapActivity.KEY_UNFOCUSED_MARKER_COLOR, 0));
-        mEarthquakeMarkers.get(previousEarthquake).setFillColor(sharedPref.getInt(EarthquakeMapActivity.KEY_UNFOCUSED_MARKER_COLOR, 0));
+        mEarthquakeMarkers.get(previousEarthquake).setStrokeColor(sharedPref.getInt(SettingsActivity.KEY_UNFOCUSED_MARKER_COLOR, 0));
+        mEarthquakeMarkers.get(previousEarthquake).setFillColor(sharedPref.getInt(SettingsActivity.KEY_UNFOCUSED_MARKER_COLOR, 0));
         mEarthquakeMarkers.get(previousEarthquake).setZIndex(0);
 
         // Recolor the current marker as it is now the focused marker
-        mEarthquakeMarkers.get(mCurrentEarthquake).setStrokeColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
-        mEarthquakeMarkers.get(mCurrentEarthquake).setFillColor(sharedPref.getInt(EarthquakeMapActivity.KEY_FOCUSED_MARKER_COLOR, 0));
+        mEarthquakeMarkers.get(mCurrentEarthquake).setStrokeColor(sharedPref.getInt(SettingsActivity.KEY_FOCUSED_MARKER_COLOR, 0));
+        mEarthquakeMarkers.get(mCurrentEarthquake).setFillColor(sharedPref.getInt(SettingsActivity.KEY_FOCUSED_MARKER_COLOR, 0));
         mEarthquakeMarkers.get(mCurrentEarthquake).setZIndex(Float.POSITIVE_INFINITY);
 
         _moveCameraToEarthquake();

@@ -8,6 +8,8 @@ public class SettingsActivity extends AppCompatActivity {
     public static final String KEY_PREF_HEATMAP_SWITCH = "heatmap_switch";
     public static final String KEY_PREF_EARTHQUAKE_COUNT = "earthquake_count";
     public static final String KEY_PREF_DATABASE_UPDATE_INTERVAL = "database_update_interval";
+    public static final String KEY_FOCUSED_MARKER_COLOR = "focused_marker_color";
+    public static final String KEY_UNFOCUSED_MARKER_COLOR = "unfocused_marker_color";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
