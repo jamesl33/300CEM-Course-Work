@@ -1,6 +1,5 @@
 package lee.james.earthquakemapper;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -14,19 +13,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 class UpdateEarthquakeDatabase extends AsyncTask<Void, Void, Boolean> {
-    private WeakReference<Context> mContext;
+
+    private WeakReference<MainActivity> mMainActivity;
 
     private String mApiResponse;
 
-    UpdateEarthquakeDatabase(Context context, String apiResponse) {
-        mContext = new WeakReference<>(context);
+    UpdateEarthquakeDatabase(MainActivity mainActivity, String apiResponse) {
+        mMainActivity = new WeakReference<>(mainActivity);
         mApiResponse = apiResponse;
     }
 
     @Override
     protected Boolean doInBackground(Void... voids) {
         ArrayList<Earthquake> earthquakes = new ArrayList<>();
-        EarthquakeDatabaseHelper earthquakeDatabase = new EarthquakeDatabaseHelper(mContext.get());
+        EarthquakeDatabaseHelper earthquakeDatabase = new EarthquakeDatabaseHelper(mMainActivity.get());
 
         try {
             CSVReader reader = new CSVReaderBuilder(new StringReader(mApiResponse))
@@ -64,7 +64,8 @@ class UpdateEarthquakeDatabase extends AsyncTask<Void, Void, Boolean> {
     protected void onPostExecute(Boolean successfulAddition) {
         if (successfulAddition) {
             // TODO - Maybe make a notification for this?
-            Toast messsage = Toast.makeText(mContext.get(), "Database Update Successful", Toast.LENGTH_SHORT);
+            Toast messsage = Toast.makeText(mMainActivity.get(), "Database Update Successful", Toast.LENGTH_SHORT);
+            mMainActivity.get().updateDatePreviews();
             messsage.show();
         }
     }

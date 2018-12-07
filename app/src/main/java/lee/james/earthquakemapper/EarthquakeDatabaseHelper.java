@@ -12,28 +12,24 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 class EarthquakeDatabaseHelper extends SQLiteAssetHelper {
-    private static final String LOG_TAG = EarthquakeDatabaseHelper.class.getSimpleName();
 
     private static final String DATABASE_NAME = "EarthquakeDatabase.db";
     private static final int DATABASE_VERSION = 1;
-
-    private SQLiteDatabase mWritableDB = this.getWritableDatabase();
-    private SQLiteDatabase mReadableDB = this.getReadableDatabase();
-
     private static final String EARTHQUAKE_TABLE = "earthquakes";
-
     private static final String KEY_ID = "id";
     private static final String KEY_LATITUDE = "latitude";
     private static final String KEY_LONGITUDE = "longitude";
     private static final String KEY_MAGNITUDE = "magnitude";
     private static final String KEY_DATE = "date";
+    private SQLiteDatabase mWritableDB = getWritableDatabase();
+    private SQLiteDatabase mReadableDB = getReadableDatabase();
 
     EarthquakeDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     Earthquake getOldest() {
-        Cursor cursor = this.mReadableDB.query(
+        Cursor cursor = mReadableDB.query(
                 EARTHQUAKE_TABLE,
                 null,
                 String.format("%s = (select min(%s) from %s)", KEY_ID, KEY_ID, EARTHQUAKE_TABLE),
@@ -58,7 +54,7 @@ class EarthquakeDatabaseHelper extends SQLiteAssetHelper {
     }
 
     Earthquake getLatest() {
-        Cursor cursor = this.mReadableDB.query(
+        Cursor cursor = mReadableDB.query(
                 EARTHQUAKE_TABLE,
                 null,
                 String.format("%s = (select max(%s) from %s)", KEY_ID, KEY_ID, EARTHQUAKE_TABLE),
@@ -83,13 +79,13 @@ class EarthquakeDatabaseHelper extends SQLiteAssetHelper {
     }
 
     ArrayList<Earthquake> getEarthquakes(String startDate, String endDate) {
-        return this.getEarthquakes(startDate, endDate, Integer.MAX_VALUE);
+        return getEarthquakes(startDate, endDate, Integer.MAX_VALUE);
     }
 
     ArrayList<Earthquake> getEarthquakes(String startDate, String endDate, Integer count) {
         ArrayList<Earthquake> earthquakeList = new ArrayList<>();
 
-        Cursor cursor = this.mReadableDB.query(
+        Cursor cursor = mReadableDB.query(
                 EARTHQUAKE_TABLE,
                 null,
                 String.format("%s between ? and ?", KEY_DATE),
@@ -130,7 +126,7 @@ class EarthquakeDatabaseHelper extends SQLiteAssetHelper {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
 
         for (Earthquake earthquake : earthquakes) {
-            Cursor cursor = this.mReadableDB.query(
+            Cursor cursor = mReadableDB.query(
                     EARTHQUAKE_TABLE,
                     null,
                     String.format("%s = ? and %s = ? and %s = ? and %s = ?", KEY_LATITUDE, KEY_LONGITUDE, KEY_MAGNITUDE, KEY_DATE),
@@ -142,7 +138,7 @@ class EarthquakeDatabaseHelper extends SQLiteAssetHelper {
 
             // This value will be zero if the earthquake doesn't already exist in the database
             if (cursor.getCount() == 0) {
-                Earthquake previousEarthquake = this.getLatest();
+                Earthquake previousEarthquake = getLatest();
 
                 ContentValues values = new ContentValues();
 
@@ -152,7 +148,7 @@ class EarthquakeDatabaseHelper extends SQLiteAssetHelper {
                 values.put(KEY_MAGNITUDE, earthquake.getMagnitude().toString());
                 values.put(KEY_DATE, dateFormat.format(earthquake.getDate()));
 
-                this.mWritableDB.insert(EARTHQUAKE_TABLE, null, values);
+                mWritableDB.insert(EARTHQUAKE_TABLE, null, values);
 
                 successfulAddition = true;
             }

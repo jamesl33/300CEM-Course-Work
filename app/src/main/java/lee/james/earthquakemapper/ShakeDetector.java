@@ -7,16 +7,14 @@ import android.hardware.SensorManager;
 
 public class ShakeDetector implements SensorEventListener {
 
-    private static final String LOG_TAG = ShakeDetector.class.getSimpleName();
-
     private static final float SHAKE_THRESHOLD = 2.5f;
     private static final int SHAKE_RESET_THRESHOLD = 1000;
 
     private OnShakeListener mShakeListener;
     private long mLastShake = System.currentTimeMillis();
 
-    public void setOnShakeListener(OnShakeListener listener) {
-        this.mShakeListener = listener;
+    void setOnShakeListener(OnShakeListener listener) {
+        mShakeListener = listener;
     }
 
     @Override
@@ -31,9 +29,9 @@ public class ShakeDetector implements SensorEventListener {
             if (gForce > ShakeDetector.SHAKE_THRESHOLD) {
                 long currentTimeMillis = System.currentTimeMillis();
 
-                if (currentTimeMillis > this.mLastShake + ShakeDetector.SHAKE_RESET_THRESHOLD) {
-                    this.mLastShake = currentTimeMillis;
-                    this.mShakeListener.onShake();
+                if (currentTimeMillis > mLastShake + ShakeDetector.SHAKE_RESET_THRESHOLD) {
+                    mLastShake = currentTimeMillis;
+                    mShakeListener.onShake();
                 }
             }
         }
