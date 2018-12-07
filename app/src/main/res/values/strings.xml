@@ -2,7 +2,7 @@
 
     <!-- Values related to main app -->
     <string name="app_name">Earthquake Mapper</string>
-    <string name="app_description">Earthquake Mapper, enables the visualisation of earthquake data collected by The United States Geological Survery (USGS). The app has a marker mode which will place a marker at the location of each earthquake. The larger the marker, the higher the magnitude. The app also contains a heatmap mode which will allow you to observe the concentration of earthquakes, as opposed to the location and magnitude of each earthquake.\n\nEarthquake mapper also contains:\n\u2022 A customisable color preference (found in the preferences), which allows you to modify the color of focused/unfocused markers.\n\u2022 A preference to allow you to modify the number of earthquakes processed.\n\u2022 Only the most significant earthquakes from 1950 to today (About 20,000).\n\nTo get started, choose two dates using the buttons below.</string>
+    <string name="app_description">This app enables the visualisation of earthquake data collected by The United States Geological Survey (USGS). When using marker mode, a marker will be placed at the location of each earthquake. The larger the marker, the higher the magnitude. Alternatively, heatmap mode will allow you to observe the concentration of earthquakes.\n\nCustomisation features:\n\n\u2022 Modify the color of focused/unfocused markers.\n\u2022 View earthquakes in chronological order.\n\u2022 While in map view, shake the phone to go to a random earthquake.\n\u2022 Mark your current location.\n\u2022 The number of earthquakes processed.\n\u2022 Only the most significant earthquakes from 1950 to the present day.\n\u2022 Auto updating database.\n\n<b>To get started, choose two dates using the buttons below.</b></string>
 
     <!-- Values related to MainActivity -->
     <string name="date_picker_start_date">Start Date Filter</string>
@@ -21,20 +21,23 @@
 
     <string-array name="earthquake_count_values">
         <item>10</item>
+        <item>25</item>
         <item>50</item>
         <item>100</item>
+        <item>1000</item>
+        <item>5000</item>
+        <item>10000</item>
         <item>All</item>
     </string-array>
 
     <!-- Values to do with EarthquakeMapActivity -->
     <string name="title_activity_earthquake_map">Map</string>
-    <string name="focus_earthquake_button">Focus Earthquake</string>
-    <string name="next_earthquake_button">Next Earthquake</string>
 
     <!-- Values to do with the floating action button -->
     <string name="fab_next_earthquake">Next Earthquake</string>
     <string name="fab_previous_earthquake">Previous Earthquake</string>
-    <string name="fab_focus_earthquake">Focus Earthquake</string>
+    <string name="fab_current_earthquake">Current Earthquake</string>
     <string name="fab_current_location">Current Location</string>
+    <string name="action_update_database">Update Database</string>
 
 </resources>

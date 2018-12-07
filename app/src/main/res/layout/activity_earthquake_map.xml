@@ -174,7 +174,7 @@
                     android:paddingTop="@dimen/cardview_vertical_padding"
                     android:paddingRight="@dimen/cardview_horizontal_padding"
                     android:paddingBottom="@dimen/cardview_vertical_padding"
-                    android:text="@string/fab_focus_earthquake"
+                    android:text="@string/fab_current_earthquake"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textStyle="bold" />
 
