@@ -1,14 +1,19 @@
 package lee.james.earthquakemapper;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 class EarthquakeDatabaseHelper extends SQLiteAssetHelper {
+    private static final String LOG_TAG = EarthquakeDatabaseHelper.class.getSimpleName();
+
     private static final String DATABASE_NAME = "EarthquakeDatabase.db";
     private static final int DATABASE_VERSION = 1;
 
@@ -93,6 +98,8 @@ class EarthquakeDatabaseHelper extends SQLiteAssetHelper {
                 null,
                 null);
 
+        cursor.moveToFirst();
+
         if (cursor.moveToFirst()) {
             int currentCount = 0;
 
@@ -114,6 +121,46 @@ class EarthquakeDatabaseHelper extends SQLiteAssetHelper {
         cursor.close();
 
         return earthquakeList;
+    }
+
+    Boolean addEarthquakes(ArrayList<Earthquake> earthquakes) {
+        // Remember to reverse the ArrayList if it's coming from the USGS
+        Boolean successfulAddition = false;
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+
+        for (Earthquake earthquake : earthquakes) {
+            Cursor cursor = this.mReadableDB.query(
+                    EARTHQUAKE_TABLE,
+                    null,
+                    String.format("%s = ? and %s = ? and %s = ? and %s = ?", KEY_LATITUDE, KEY_LONGITUDE, KEY_MAGNITUDE, KEY_DATE),
+                    new String[]{earthquake.getLatitude().toString(), earthquake.getLongitude().toString(), earthquake.getMagnitude().toString(), dateFormat.format(earthquake.getDate())},
+                    null,
+                    null,
+                    null
+            );
+
+            // This value will be zero if the earthquake doesn't already exist in the database
+            if (cursor.getCount() == 0) {
+                Earthquake previousEarthquake = this.getLatest();
+
+                ContentValues values = new ContentValues();
+
+                values.put(KEY_ID, previousEarthquake.getId() + 1);
+                values.put(KEY_LATITUDE, earthquake.getLatitude().toString());
+                values.put(KEY_LONGITUDE, earthquake.getLongitude().toString());
+                values.put(KEY_MAGNITUDE, earthquake.getMagnitude().toString());
+                values.put(KEY_DATE, dateFormat.format(earthquake.getDate()));
+
+                this.mWritableDB.insert(EARTHQUAKE_TABLE, null, values);
+
+                successfulAddition = true;
+            }
+
+            cursor.close();
+        }
+
+        return successfulAddition;
     }
 
 }

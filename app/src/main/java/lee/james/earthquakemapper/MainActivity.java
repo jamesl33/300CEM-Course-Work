@@ -2,6 +2,7 @@ package lee.james.earthquakemapper;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
@@ -14,6 +15,13 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -25,12 +33,31 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int MAP_EARTHQUAKES_REQUEST = 1;
 
+    private AsyncTask mDatabaseUpdater;
+
     private Date startDate;
     private Date endDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+
+            try {
+                if (savedInstanceState.containsKey("startDate")) {
+                    this.startDate = dateFormat.parse(savedInstanceState.getString("startDate"));
+                }
+
+                if (savedInstanceState.containsKey("endDate")) {
+                    this.endDate = dateFormat.parse(savedInstanceState.getString("endDate"));
+                }
+            } catch (ParseException error) {
+                error.printStackTrace();
+            }
+        }
+
         setContentView(R.layout.activity_main);
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -40,13 +67,17 @@ public class MainActivity extends AppCompatActivity {
 
         // Set the default values for the start/end date
         EarthquakeDatabaseHelper earthquakeDatabase = new EarthquakeDatabaseHelper(this);
-        this.startDate = earthquakeDatabase.getOldest().getDate();
+
+        this.startDate = earthquakeDatabase.getLatest().getDate();
         this.endDate = earthquakeDatabase.getLatest().getDate();
         this.updateDatePreviews();
 
         // Make the app description scrollable if it doesn't fit on the users display
         TextView app_description = findViewById(R.id.text_view_app_description);
         app_description.setMovementMethod(new ScrollingMovementMethod());
+
+        // Update the api database
+        this.updateDatabase();
     }
 
     @Override
@@ -149,6 +180,40 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, MainActivity.MAP_EARTHQUAKES_REQUEST);
     }
 
+    public void updateDatabase() {
+        // Update the database using the AsyncTask UpdateEarthquakeDatabase
+        RequestQueue queue = Volley.newRequestQueue(this);
+        EarthquakeDatabaseHelper earthquakeDatabase = new EarthquakeDatabaseHelper(this);
+
+        Date latest = earthquakeDatabase.getLatest().getDate();
+        Date today = new Date();
+
+        // Only update once a day TODO - Possibly make a setting to modify this?
+        if (latest != today) {
+            // Determine the url which should give us the earthquakes we are missing
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            String url = String.format("https://earthquake.usgs.gov/fdsnws/event/1/query?format=csv&starttime=%s&endtime=%s&minsig=500",
+                    dateFormat.format(latest), dateFormat.format(today));
+
+            // This request will fail if there are over 20,000 results. This is highly unlikely since there was only 19487 earthquakes
+            // with a significance value of over 500 since 1950 to today (06/12/18). If it fails due to lack of internet its should
+            // just try again when the user next launches the app.
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new com.android.volley.Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    mDatabaseUpdater = new UpdateEarthquakeDatabase(MainActivity.this, response).execute();
+                }
+            }, new com.android.volley.Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    error.printStackTrace();
+                }
+            });
+
+            queue.add(stringRequest);
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Inform the user if the maps activity closed with the canceled flag
@@ -158,6 +223,23 @@ public class MainActivity extends AppCompatActivity {
                 errorMessage.show();
             }
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        // Stop updating the database when the app is about to be destroyed
+        this.mDatabaseUpdater.cancel(true);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+
+        outState.putString("startDate", dateFormat.format(this.startDate));
+        outState.putString("endDate", dateFormat.format(this.endDate));
+
+        super.onSaveInstanceState(outState);
     }
 
 }
