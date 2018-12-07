@@ -30,6 +30,12 @@
         <item>All</item>
     </string-array>
 
+    <string-array name="database_latest_earthquake_age">
+        <item>A Day Old</item>
+        <item>A Week Old</item>
+        <item>A Month Old</item>
+    </string-array>
+
     <!-- Values to do with EarthquakeMapActivity -->
     <string name="title_activity_earthquake_map">Map</string>
 

@@ -1,62 +1,52 @@
 package lee.james.earthquakemapper;
 
-import android.support.annotation.NonNull;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class Earthquake {
+class Earthquake {
 
-    private static final String LOG_TAG = Earthquake.class.getSimpleName();
+    private Integer mId;
+    private Float mLatitude;
+    private Float mLongitude;
+    private Float mMagnitude;
+    private Date mDate;
 
-    private Integer id;
-    private Float latitude;
-    private Float longitude;
-    private Float magnitude;
-    private Date date;
-
-    public Earthquake(Integer id, Float latitude, Float longitude, Float magnitude, String date) {
+    Earthquake(Integer id, Float latitude, Float longitude, Float magnitude, String date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
 
-        this.id = id;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.magnitude = magnitude;
+        mId = id;
+        mLatitude = latitude;
+        mLongitude = longitude;
+        mMagnitude = magnitude;
 
         try {
-            this.date = dateFormat.parse(date);
+            mDate = dateFormat.parse(date);
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
     }
 
-    public Integer getId() {
-        return this.id;
+    Integer getId() {
+        return mId;
     }
 
-    public Float getLatitude() {
-        return this.latitude;
+    Float getLatitude() {
+        return mLatitude;
     }
 
-    public Float getLongitude() {
-        return this.longitude;
+    Float getLongitude() {
+        return mLongitude;
     }
 
-    public Float getMagnitude() {
-        return this.magnitude;
+    Float getMagnitude() {
+        return mMagnitude;
     }
 
-    public Date getDate() {
-        return this.date;
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-        return String.format(Locale.getDefault(), "%d", this.id);
+    Date getDate() {
+        return mDate;
     }
 
 }

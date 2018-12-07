@@ -47,4 +47,21 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:key="database_catagory"
+        android:title="Database">
+
+        <ListPreference
+            android:defaultValue="A Day Old"
+            android:entries="@array/database_latest_earthquake_age"
+            android:entryValues="@array/database_latest_earthquake_age"
+            android:key="database_update_interval"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:summary="Maximum age of the latest earthquake"
+            android:title="Latest earthquake age"
+            android:widgetLayout="@layout/arrow_dropdown" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>
