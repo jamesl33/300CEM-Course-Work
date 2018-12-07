@@ -5,6 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * Object to represent a single earthquake. Allows the easy management of earthquake data fetched
+ * from the database.
+ */
 class Earthquake {
 
     private Integer mId;

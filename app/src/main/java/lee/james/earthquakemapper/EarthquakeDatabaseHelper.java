@@ -11,16 +11,26 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
+/**
+ * Class to allow the fetching of data from the sqlite database
+ */
 class EarthquakeDatabaseHelper extends SQLiteAssetHelper {
 
+    // Database metadata
     private static final String DATABASE_NAME = "EarthquakeDatabase.db";
     private static final int DATABASE_VERSION = 1;
+
+    // Table name
     private static final String EARTHQUAKE_TABLE = "earthquakes";
+
+    // Column names
     private static final String KEY_ID = "id";
     private static final String KEY_LATITUDE = "latitude";
     private static final String KEY_LONGITUDE = "longitude";
     private static final String KEY_MAGNITUDE = "magnitude";
     private static final String KEY_DATE = "date";
+
+    // The actual database objects
     private SQLiteDatabase mWritableDB = getWritableDatabase();
     private SQLiteDatabase mReadableDB = getReadableDatabase();
 
@@ -28,6 +38,12 @@ class EarthquakeDatabaseHelper extends SQLiteAssetHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    /**
+     * Get the oldest earthquake from the database (The oldest earthquake is the once with the smallest
+     * id).
+     *
+     * @return {Earthquake} - The oldest earthquake in the database
+     */
     Earthquake getOldest() {
         Cursor cursor = mReadableDB.query(
                 EARTHQUAKE_TABLE,
@@ -53,6 +69,11 @@ class EarthquakeDatabaseHelper extends SQLiteAssetHelper {
         return oldest;
     }
 
+    /**
+     * Get the earthquake from the database with the latest date (This will be the earthquake with
+     * the largest id).
+     * @return {Earthquake} - The youngest earthquake in the database.
+     */
     Earthquake getLatest() {
         Cursor cursor = mReadableDB.query(
                 EARTHQUAKE_TABLE,
@@ -78,10 +99,24 @@ class EarthquakeDatabaseHelper extends SQLiteAssetHelper {
         return latest;
     }
 
+    /**
+     * Get all of the earthquakes from the database that are between two dates.
+     * @param startDate - The date to start collecting from
+     * @param endDate - The date to stop collecting at (inclusive)
+     * @return {ArrayList<Earthqauke>} - All the earthquakes that occurred between 'startDate' and 'endDate'
+     */
     ArrayList<Earthquake> getEarthquakes(String startDate, String endDate) {
         return getEarthquakes(startDate, endDate, Integer.MAX_VALUE);
     }
 
+    /**
+     * Method override for getEarthquakes(String, String) which allows the user to limit how
+     * large ArrayList<Earthquake> can get.
+     * @param startDate - The date to start collecting from
+     * @param endDate - The date to stop collecting at (inclusive)
+     * @param count - The number of earthquakes to get
+     * @return {ArrayList<Earthqauke>} - 'count' number of earthquakes that occurred between 'startDate' and 'endDate'
+     */
     ArrayList<Earthquake> getEarthquakes(String startDate, String endDate, Integer count) {
         ArrayList<Earthquake> earthquakeList = new ArrayList<>();
 
@@ -119,6 +154,11 @@ class EarthquakeDatabaseHelper extends SQLiteAssetHelper {
         return earthquakeList;
     }
 
+    /**
+     * Add all the earthquakes from a collection into the database. (This function is used in the AsyncTask to auto update the database).
+     * @param earthquakes - The collection of earthquakes as obtained from the USGS web api.
+     * @return - True if any earthquake was added to the database. False if no addition were made.
+     */
     Boolean addEarthquakes(ArrayList<Earthquake> earthquakes) {
         // Remember to reverse the ArrayList if it's coming from the USGS
         Boolean successfulAddition = false;

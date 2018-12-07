@@ -29,6 +29,10 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Activity for the home screen. Allows the picking/filtering of dates for launching
+ * EarthquakeMapActivity
+ */
 public class MainActivity extends AppCompatActivity {
 
     public static final int MAP_EARTHQUAKES_REQUEST = 1;
@@ -40,6 +44,11 @@ public class MainActivity extends AppCompatActivity {
     private Date mStartDate;
     private Date mEndDate;
 
+    /**
+     * Setup the main activity. Set the default start/end dates.
+     *
+     * @param savedInstanceState - Bundle used to persist data (useful when changing orientation)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,10 +58,12 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 if (savedInstanceState.containsKey("mStartDate")) {
+                    // Populate mStartDate with the bundled value
                     mStartDate = dateFormat.parse(savedInstanceState.getString("mStartDate"));
                 }
 
                 if (savedInstanceState.containsKey("mEndDate")) {
+                    // Populate mEndDate with the bundled value
                     mEndDate = dateFormat.parse(savedInstanceState.getString("mEndDate"));
                 }
             } catch (ParseException error) {
@@ -81,6 +92,11 @@ public class MainActivity extends AppCompatActivity {
         updateDatabase();
     }
 
+    /**
+     * Create the menu use to launch the setting activity
+     * @param menu - The option menu in which to place the items
+     * @return - true to display the menu
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -88,6 +104,11 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * React to the actions on the options menu
+     * @param item - The item which was selected
+     * @return - true to consume menu processing
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -104,6 +125,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Update the TextViews which show the user what the current selected date is.
+     */
     public void updateDatePreviews() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
         TextView text_view_start_date = findViewById(R.id.text_view_start_date);
@@ -119,6 +143,10 @@ public class MainActivity extends AppCompatActivity {
         text_view_end_date.setText(dateFormat.format(mStartDate));
     }
 
+    /**
+     * Open a DatePickerDialog to allow the user to pick the start filtering date.
+     * @param view - The button that called the function
+     */
     public void pickStartDate(View view) {
         // Use the current date as the default date for the date picker
         final Calendar cal = Calendar.getInstance();
@@ -145,6 +173,10 @@ public class MainActivity extends AppCompatActivity {
         startDatePicker.show();
     }
 
+    /**
+     * Open a DatePickerDialog to allow the user to pick the end filtering date.
+     * @param view - The button that called the function
+     */
     public void pickEndDate(View view) {
         // Use the current date as the default date for the date picker
         final Calendar cal = Calendar.getInstance();
@@ -173,6 +205,10 @@ public class MainActivity extends AppCompatActivity {
         endDatePicker.show();
     }
 
+    /**
+     * Launch EarthquakeMapActivity to visualise the selected earthquake data for the user
+     * @param view - The button that called the function
+     */
     public void visualizeEarthquakes(View view) {
         Intent intent = new Intent(this, EarthquakeMapActivity.class);
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
@@ -187,6 +223,10 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, MainActivity.MAP_EARTHQUAKES_REQUEST);
     }
 
+    /**
+     * Update the database in the background using the AsyncTask UpdateEarthquakeDatabase.
+     * The update will exit prematurely if not over the update threshold.
+     */
     public void updateDatabase() {
         // Update the database using the AsyncTask UpdateEarthquakeDatabase
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -225,6 +265,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Handle the response from EarthquakeMapActivity
+     * @param requestCode - The request code use to launch the activity
+     * @param resultCode - The result code as set when returning the intent
+     * @param data - The intent sent back from the activity
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Inform the user if the maps activity closed with the canceled flag
@@ -236,6 +282,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Make sure we free up the resources used in the background AsyncTask
+     */
     @Override
     public void onDestroy() {
         // Stop updating the database when the app is about to be destroyed
@@ -246,10 +295,15 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    /**
+     * Save the instance variables to a Bundle
+     * @param outState - The bundle eventually passed to onCreate()
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
 
+        // Save the start/end date into the bundle
         outState.putString("mStartDate", dateFormat.format(mStartDate));
         outState.putString("mEndDate", dateFormat.format(mEndDate));
 

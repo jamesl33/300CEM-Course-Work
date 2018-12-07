@@ -12,8 +12,12 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * AsyncTask to allow the updating of the earthquake database in the background (avoiding blocking the ui thread)
+ */
 class UpdateEarthquakeDatabase extends AsyncTask<Void, Void, Boolean> {
 
+    // Use a WeakReference to avoid leaking the main activity
     private WeakReference<MainActivity> mMainActivity;
 
     private String mApiResponse;
@@ -23,6 +27,12 @@ class UpdateEarthquakeDatabase extends AsyncTask<Void, Void, Boolean> {
         mApiResponse = apiResponse;
     }
 
+    /**
+     * The task performed in the background. Parsing the api response and adding it to the database.
+     *
+     * @param voids - Nothing
+     * @return Whether or not any earthquakes were added to the database
+     */
     @Override
     protected Boolean doInBackground(Void... voids) {
         ArrayList<Earthquake> earthquakes = new ArrayList<>();
@@ -60,6 +70,11 @@ class UpdateEarthquakeDatabase extends AsyncTask<Void, Void, Boolean> {
         return false;
     }
 
+    /**
+     * The callback run on the ui thread when doInBackground finishes. If the date previews haven't
+     * been edited by the user, update them. Notify the user that the database was updated.
+     * @param successfulAddition - Whether or not any earthquake were added to the database
+     */
     @Override
     protected void onPostExecute(Boolean successfulAddition) {
         if (successfulAddition) {
