@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         text_view_start_date.setText(dateFormat.format(mStartDate));
-        text_view_end_date.setText(dateFormat.format(mStartDate));
+        text_view_end_date.setText(dateFormat.format(mEndDate));
     }
 
     /**

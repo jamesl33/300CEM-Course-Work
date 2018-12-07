@@ -463,6 +463,7 @@ public class EarthquakeMapActivity extends FragmentActivity implements OnMapRead
     public void onDestroy() {
         // Unregister ShakeDetector when the user focuses the app
         mSensorManager.unregisterListener(mShakeDetector);
+        super.onDestroy();
     }
 
 }
