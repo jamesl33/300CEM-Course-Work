@@ -62,6 +62,10 @@ class Earthquake {
     }
 
     public boolean equals(Object obj) {
-        return obj instanceof Earthquake && mId.equals(((Earthquake) obj).getId());
+        return obj instanceof Earthquake && mId.equals(((Earthquake) obj).getId())
+                && mLatitude.equals(((Earthquake) obj).getLatitude())
+                && mLongitude.equals(((Earthquake) obj).getLongitude())
+                && mMagnitude.equals(((Earthquake) obj).getMagnitude())
+                && mDate.equals(((Earthquake) obj).getDate());
     }
 }
